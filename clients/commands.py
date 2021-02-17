@@ -61,12 +61,32 @@ def update(ctx, client_uid):
     client_list = client_service.list_clients()
 
     client = [client for client in client_list if client['uid'] == client_uid]
+    print(client)
 
     if client:
         client = _update_client_flow(Client(**client[0]))
         client_service.update_client(client)
 
         click.echo('Client updated')
+    else:
+        click.echo('Client not found')
+
+
+@clients.command()
+@click.argument('client_uid', type=str)
+@click.pass_context
+def delete(ctx, client_uid):
+    """Deletes a client"""
+    client_service = ClientService(ctx.obj['clients_table'])
+
+    client_list = client_service.list_clients()
+
+    client = [client for client in client_list if client['uid'] == client_uid]
+    
+    if client:
+        client_service.delete_client(Client(**client[0]))
+
+        click.echo('Client deleted')
     else:
         click.echo('Client not found')
 
@@ -81,10 +101,5 @@ def _update_client_flow(client):
 
     return client
 
-@clients.command()
-@click.pass_context
-def delete(ctx, client_uid):
-    """Deletes a client"""
-    pass
 
 all = clients
