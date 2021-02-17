@@ -50,13 +50,36 @@ def list(ctx):
         click.echo(f"{client['uid']}\t | {client['name']}\t | {client['company']}\t | {client['email']}\t | {client['position']}")
         
 
-
 @clients.command()
+@click.argument('client_uid',
+                type=str)
 @click.pass_context
 def update(ctx, client_uid):
     """Updates a client"""
-    pass
+    client_service = ClientService(ctx.obj['clients_table'])
 
+    client_list = client_service.list_clients()
+
+    client = [client for client in client_list if client['uid'] == client_uid]
+
+    if client:
+        client = _update_client_flow(Client(**client[0]))
+        client_service.update_client(client)
+
+        click.echo('Client updated')
+    else:
+        click.echo('Client not found')
+
+
+def _update_client_flow(client):
+    click.echo('Leave empty if you dont want to modify de value')
+
+    client.name = click.prompt('New name', type=str, default=client.name)
+    client.company = click.prompt('New Company', type=str, default=client.company)
+    client.email = click.prompt('New email', type=str, default=client.email)
+    client.position = click.prompt('New posotion', type=str, default=client.position)
+
+    return client
 
 @clients.command()
 @click.pass_context
